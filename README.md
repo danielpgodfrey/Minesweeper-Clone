@@ -7,7 +7,11 @@ Minesweeper is a well-known computer game famously available for the Microsoft W
 
 The objective of the game is to click on all of the non-mine blocks. Clicking on a mine block should lead to a game-over screen.
 
+This game was inspired by the programarcadegames.com tutorial.
+
 Here, I aim to create a simple clone of Minesweeper to introduce myself to basic Pygame modules. 
+
+NOTE: This game was created for Python3. It requires the pygame library for Python3.
 
 <h3>TODO:</h3>
 
