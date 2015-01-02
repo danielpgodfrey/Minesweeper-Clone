@@ -1,14 +1,19 @@
+# Screen resolution
 SCREEN_HEIGHT = 255
 SCREEN_WIDTH = 255
 
+# Size of the blocks, and the margin between them.
 GRID_WIDTH = 20
 GRID_HEIGHT = 20
 MARGIN = 5
 
+# How many rows and columns of blocks to create
 ROWS = 10
 COLUMNS = 10
 
 # Number of mines to place on the grid
+# should check if this is a certain percentage
+# of total blocks
 MINES = 10
 
 # Define some colors
