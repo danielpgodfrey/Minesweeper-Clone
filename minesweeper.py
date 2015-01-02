@@ -2,11 +2,14 @@ import pygame
 import random
 from constants import *
 
+
 class Screen:
+
     """
     Class that controls the screen. This class is responsible for
     drawing to the screen
     """
+
     def __init__(self):
         # Screen elements
         self.screen = pygame.display.set_mode((SCREEN_HEIGHT, SCREEN_WIDTH))
@@ -27,7 +30,7 @@ class Screen:
 
     def __initial_draw(self):
         """
-        Draw initial game board. All blocks should initially be 
+        Draw initial game board. All blocks should initially be
         white
         """
         for row in range(0, ROWS):
@@ -38,18 +41,23 @@ class Screen:
                                  GRID_WIDTH,
                                  GRID_HEIGHT))
 
+
 class Game:
+
     """
     This class holds all the game elements. It renders the game and
     controls user input.
     """
+
     def __init__(self):
         """
         Sets up the initial game state, and starts the game
         """
         self.mine_grid = self.generate_mine_grid()
         self.mine_neighbor_grid = self.get_mine_neighbor_grid(self.mine_grid)
-        self.color_grid = self.get_color_grid(self.mine_grid, self.mine_neighbor_grid)
+        self.color_grid = self.get_color_grid(
+            self.mine_grid,
+            self.mine_neighbor_grid)
 
         self.pygame_initialize()
         self.clock = pygame.time.Clock()
@@ -91,7 +99,8 @@ class Game:
         mine_neighbor_grid = [[0 for x in range(COLUMNS)] for y in range(ROWS)]
         for row in range(ROWS):
             for column in range(COLUMNS):
-                mine_neighbor_grid[row][column] = self.__count_mine_neighbors(row, column, mine_grid)
+                mine_neighbor_grid[row][
+                    column] = self.__count_mine_neighbors(row, column, mine_grid)
 
         return mine_neighbor_grid
 
@@ -154,7 +163,7 @@ class Game:
 
         # This grid changes during gameplay, so I initialize it in
         # the main game loop
-        click_grid = [[0 for x in range(COLUMNS)] for y in range (ROWS)]
+        click_grid = [[0 for x in range(COLUMNS)] for y in range(ROWS)]
 
         while not done:
             for event in pygame.event.get():
@@ -169,8 +178,10 @@ class Game:
             # redraw the screen.
             if new_click:
                 # Get the row and column of the block clicked
-                row_clicked, column_clicked = self.find_row_and_column_clicked(mouse_pos)
-                click_grid, game_over = self.click_block_event(row_clicked, column_clicked, click_grid, game_over)
+                row_clicked, column_clicked = self.find_row_and_column_clicked(
+                    mouse_pos)
+                click_grid, game_over = self.click_block_event(
+                    row_clicked, column_clicked, click_grid, game_over)
                 self.game_screen.draw_grid(click_grid, self.color_grid)
                 new_click = False
 
@@ -206,7 +217,12 @@ class Game:
 
         return row_clicked, column_clicked
 
-    def click_block_event(self, row_clicked, column_clicked, click_grid, game_over):
+    def click_block_event(
+        self,
+        row_clicked,
+        column_clicked,
+        click_grid,
+            game_over):
         """
         Handles what occurs when a row and column are clicked.
         Returns the updated click_grid and the game_over variable.
@@ -219,7 +235,11 @@ class Game:
 
         # Reveal the neighbors of the clicked block
         elif self.mine_neighbor_grid[row_clicked][column_clicked] == 0:
-            self.__reveal_neighbors(row_clicked, column_clicked, click_grid, self.mine_neighbor_grid)
+            self.__reveal_neighbors(
+                row_clicked,
+                column_clicked,
+                click_grid,
+                self.mine_neighbor_grid)
 
         return click_grid, game_over
 
@@ -288,22 +308,37 @@ class Game:
             clicked_left = click_grid[row][column - 1] == 1
             click_grid[row][column - 1] = 1
 
-
-
         # Call the function on the neighbors that have no mine-neighbors
         if not on_right_border and neighborless_right and not clicked_right:
-                self.__reveal_neighbors(row, column + 1, click_grid, mine_neighbor_grid)
+            self.__reveal_neighbors(
+                row,
+                column + 1,
+                click_grid,
+                mine_neighbor_grid)
 
         if not on_left_border and neighborless_left and not clicked_left:
-                self.__reveal_neighbors(row, column - 1, click_grid, mine_neighbor_grid)
+            self.__reveal_neighbors(
+                row,
+                column - 1,
+                click_grid,
+                mine_neighbor_grid)
 
         if not on_top_border and neighborless_up and not clicked_up:
-                self.__reveal_neighbors(row - 1, column, click_grid, mine_neighbor_grid)
+            self.__reveal_neighbors(
+                row - 1,
+                column,
+                click_grid,
+                mine_neighbor_grid)
 
         if not on_bottom_border and neighborless_down and not clicked_down:
-                self.__reveal_neighbors(row + 1, column, click_grid, mine_neighbor_grid)
+            self.__reveal_neighbors(
+                row + 1,
+                column,
+                click_grid,
+                mine_neighbor_grid)
 
         return click_grid
+
 
 def main():
     pygame.init()
