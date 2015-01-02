@@ -7,7 +7,7 @@ class Screen:
     Class that controls the screen. This class is responsible for
     drawing to the screen
     """
-    def __init__(self, color_grid):
+    def __init__(self):
         # Screen elements
         self.screen = pygame.display.set_mode((SCREEN_HEIGHT, SCREEN_WIDTH))
         pygame.display.set_caption("Minesweeper Pre-Alpha")
@@ -16,6 +16,8 @@ class Screen:
     def draw_grid(self, click_grid, color_grid):
         for row in range(0, ROWS):
             for column in range(0, COLUMNS):
+                # Only draw to the screen if the block is marked
+                # as to-draw
                 if click_grid[row][column] == 1:
                     pygame.draw.rect(self.screen, color_grid[row][column],
                                     (column * GRID_WIDTH + (column + 1) * MARGIN,
@@ -24,6 +26,10 @@ class Screen:
                                      GRID_HEIGHT))
 
     def __initial_draw(self):
+        """
+        Draw initial game board. All blocks should initially be 
+        white
+        """
         for row in range(0, ROWS):
             for column in range(0, COLUMNS):
                 pygame.draw.rect(self.screen, WHITE,
@@ -47,7 +53,7 @@ class Game:
 
         self.pygame_initialize()
         self.clock = pygame.time.Clock()
-        self.game_screen = Screen(self.color_grid)
+        self.game_screen = Screen()
         self.main_loop()
 
     def pygame_initialize(self):
@@ -154,7 +160,7 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     done = True
-                if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.type == pygame.MOUSEBUTTONDOWN and not game_over:
                     mouse_pos = self.mouse_down(click_grid, game_over)
                     new_click = True
 
