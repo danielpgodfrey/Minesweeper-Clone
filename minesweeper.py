@@ -281,15 +281,20 @@ class Game:
     def __reveal_neighbors(self, row, column, click_grid, mine_neighbor_grid):
         """
         Reveals all blocks next to a input block if the block has no
-        mine-neighbors. If the block has no mine-neighbors,
+        mine-neighbors. If the block has no mine-neighbors, and one of its
+        neighbors has no mine-neighbors, call this function on those neighbors
         """
         assert mine_neighbor_grid[row][column] == 0
 
+        # Check to see if the block is on a border
         on_top_border = row == 0
         on_bottom_border = row == ROWS - 1
         on_left_border = column == 0
         on_right_border = column == COLUMNS - 1
 
+        # Reveal the neighbors, if they exist. Check to see if the
+        # neighbors themselves have mine-neighbors. Also, check to see 
+        # if the neighbors are already clicked.
         # If statements are necessary to prevent an out of range error.
         if not on_right_border:
             neighborless_right = mine_neighbor_grid[row][column + 1] == 0
