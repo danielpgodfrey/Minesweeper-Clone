@@ -17,9 +17,9 @@ NOTE: This game was created for Python3. It requires the pygame library for Pyth
 
 <h4>High priority</h4>
 <ul>
-  <li>Add a game-over state (victory and defeat)</li>
+  <li><s>Add a game-over state (victory and defeat)</s></li>
   <li>Have an option to restart the game after the game has ended</li>
-  <li>~~Find a faster way to generate mine-less neighbors (recursion?)~~</li>
+  <li><s>Find a faster way to generate mine-less neighbors (recursion?)</s></li>
   <li>Add numbers to blocks to signify the number of mine-neighbors (currently using colors)</li>
   <li>Initialize mines after the player has clicked once, and not where the player has already clicked</li>
   <li>Find a better way to initialize mines</li>
