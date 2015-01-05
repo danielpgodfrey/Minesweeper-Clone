@@ -18,19 +18,22 @@ NOTE: This game was created for Python3. It requires the pygame library for Pyth
 <h4>High priority</h4>
 <ul>
   <li><s>Add a game-over state (victory and defeat)</s></li>
-  <li>Have an option to restart the game after the game has ended</li>
+  <li><s>Have an option to restart the game after the game has ended</s></li>
   <li><s>Find a faster way to generate mine-less neighbors (recursion?)</s></li>
-  <li>Add numbers to blocks to signify the number of mine-neighbors (currently using colors)</li>
   <li>Initialize mines after the player has clicked once, and not where the player has already clicked</li>
   <li>Find a better way to initialize mines</li>
+  <li>Update appropriate grids to use boolean values rather than 0s and 1s</li>
 </ul>
 
 <h4>Low priority</h4>
 <ul>
-  <li>Add flags</li>
+  <li><s>Add flags</s></li>
   <li>Time the player</li>
   <li>Keep a record of best times</li>
+  <li>Add numbers to blocks to signify the number of mine-neighbors (currently using colors)</li>
   <li>Refactor code</li>
+  <li>Move grids to their own class</li>
   <li>Add option to have custom number of rows and columns</li>
   <li>Add option to have custom number of mines in play</li>
+  <li>Improve game over screen</li>
 </ul>
