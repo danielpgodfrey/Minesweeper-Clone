@@ -39,4 +39,4 @@ ORANGE   = ( 255, 165,   0)
 
 # Misc
 # Milliseconds to wait between clicks
-CLICK_WAIT = 350 
+CLICK_WAIT = 100 

@@ -15,12 +15,6 @@ class Game:
         """
         Sets up the initial game state, and starts the game
         """
-        self.mine_grid = self.generate_mine_grid()
-        self.mine_neighbor_grid = self.get_mine_neighbor_grid(self.mine_grid)
-        self.color_grid = self.get_color_grid(
-            self.mine_grid,
-            self.mine_neighbor_grid)
-
         self.initialize_pygame()
         self.clock = pygame.time.Clock()
         self.game_screen = Screen()
@@ -31,7 +25,7 @@ class Game:
         """
         pygame.init()
 
-    def generate_mine_grid(self):
+    def generate_mine_grid(self, row_clicked, column_clicked):
         """
         Creates a randomly generated grid of mines.
         Ideally, this should happen after the first click by the user.
@@ -40,11 +34,23 @@ class Game:
 
         # Generate mines randomly. COLUMNS * ROWS gives us the total amount
         # of blocks on the playing ground. We then create a mine in the randomly
-        # selected spaces. 
-        mines = random.sample(range(COLUMNS*ROWS), MINES)
-        for mine in mines:
-            # Unpack the rows and columns from the integer "mine"
-            mine_grid[mine // COLUMNS][mine % COLUMNS] = 1
+        # selected spaces. We create one more than we need in case 
+        mines = random.sample(range(COLUMNS*ROWS), MINES + 1)
+        for mine in mines[:-1]:
+            # Unpack the row and column from the integer "mine"
+            mine_row = mine // COLUMNS
+            mine_column = mine % COLUMNS
+            
+            # If a mine is generated where the user clicked, use the extra mine
+            # we generated in its place.
+            if row_clicked == mine_row and mine_column == mine_row:
+                mine_row = mines[MINES] // COLUMNS
+                mine_column = mines[MINES] % COLUMNS
+            
+            mine_grid[mine_row][mine_column] = 1
+            
+        if mine_grid[row_clicked][column_clicked] == 1:
+            mine_grid[row_clicked][column_clicked] = 0
         return mine_grid
 
     def get_mine_neighbor_grid(self, mine_grid):
@@ -152,7 +158,7 @@ class Game:
 
         return row_clicked, column_clicked
 
-    def click_block_event(self, row_clicked, column_clicked, click_grid, flag_grid):
+    def click_block_event(self, row_clicked, column_clicked, click_grid, flag_grid, mine_grid, mine_neighbor_grid):
         """
         Handles what occurs when a row and column are clicked.
         Returns the updated click_grid and the game_over variable.
@@ -169,17 +175,17 @@ class Game:
 
 
         # End the game if the user has clicked on a mine
-        elif self.mine_grid[row_clicked][column_clicked] == 1:
+        elif mine_grid[row_clicked][column_clicked] == 1:
             game_over = True
 
         # If the block is mine-neighborless, reveal the neighbors of the 
         # clicked block.
-        elif self.mine_neighbor_grid[row_clicked][column_clicked] == 0:
+        elif mine_neighbor_grid[row_clicked][column_clicked] == 0:
             self._reveal_neighbors(
                 row_clicked,
                 column_clicked,
                 click_grid,
-                self.mine_neighbor_grid)
+                mine_neighbor_grid)
 
         return click_grid, game_over
 
@@ -276,11 +282,11 @@ class Game:
         return click_grid
 
     def restart(self):
-        self.mine_grid = self.generate_mine_grid()
-        self.mine_neighbor_grid = self.get_mine_neighbor_grid(self.mine_grid)
-        self.color_grid = self.get_color_grid(
-            self.mine_grid,
-            self.mine_neighbor_grid)
+        #self.mine_grid = self.generate_mine_grid()
+        #self.mine_neighbor_grid = self.get_mine_neighbor_grid(self.mine_grid)
+        #self.color_grid = self.get_color_grid(
+            #self.mine_grid,
+            #self.mine_neighbor_grid)
 
         self.game_screen.initial_draw()
 
@@ -297,7 +303,11 @@ class Game:
         right_click = False
         game_over = False
         restart = False
-        start = pygame.time.get_ticks()
+        first_click = False
+        clicks = 0
+        
+        time_clicked = pygame.time.get_ticks()
+        
         click_grid = [[0 for x in range(COLUMNS)] for y in range(ROWS)]
         flag_grid = [[0 for x in range(COLUMNS)] for y in range(ROWS)]
 
@@ -307,18 +317,35 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     done = True
+                # Left click event
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     mouse_pos = self.mouse_down()
+
                     # Wait added to prevent accidental double clicks
-                    if pygame.time.get_ticks() - start > CLICK_WAIT:
+                    if pygame.time.get_ticks() - time_clicked > CLICK_WAIT:
                         left_click = True
-                        start = pygame.time.get_ticks()
+                        time_clicked = pygame.time.get_ticks()
+                        
+                        if clicks == 0:
+                            clicks += 1
+                            first_click = True
+                
+                # Right click event
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
                     mouse_pos = self.mouse_down()
-                    if pygame.time.get_ticks() - start > CLICK_WAIT:
-                        start = pygame.time.get_ticks()
+
+                    if pygame.time.get_ticks() - time_clicked > CLICK_WAIT:
+                        time_clicked = pygame.time.get_ticks()
                         right_click = True
             
+            if first_click:
+                row_clicked, column_clicked = self.find_row_and_column_clicked(
+                    mouse_pos)
+                mine_grid = self.generate_mine_grid(row_clicked, column_clicked)
+                mine_neighbor_grid = self.get_mine_neighbor_grid(mine_grid)
+                color_grid = self.get_color_grid(mine_grid, mine_neighbor_grid)
+                first_click = False
+
             
             # If the user has left clicked since the last iteration, 
             # handle the event, check the game over status, and
@@ -328,9 +355,9 @@ class Game:
                 row_clicked, column_clicked = self.find_row_and_column_clicked(
                     mouse_pos)
                 click_grid, game_over = self.click_block_event(
-                    row_clicked, column_clicked, click_grid, flag_grid)
+                    row_clicked, column_clicked, click_grid, flag_grid, mine_grid, mine_neighbor_grid)
                 self.game_screen.update_grid(
-                    click_grid, self.color_grid, self.mine_neighbor_grid)
+                    click_grid, color_grid, mine_neighbor_grid)
                 
                 # Since the event has been handled on this iteration, do not
                 # handle it on the next iteration unless they click again.
@@ -349,6 +376,7 @@ class Game:
                 
                 right_click = False
 
+            # Game over condition
             elif game_over:
                 self.game_screen.game_over_screen()
                 if left_click:
@@ -356,6 +384,7 @@ class Game:
                 elif right_click:
                     done = True
 
+            # Victory condition
             total_clicked_blocks = len([x for y in click_grid 
                                         for x in y if x==1])
 
@@ -375,7 +404,8 @@ class Game:
                 right_click = False
                 game_over = False
                 restart = False
-                start = pygame.time.get_ticks()
+                first_click = True
+                time_clicked = pygame.time.get_ticks()
 
 def main():
     game = Game()
