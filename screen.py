@@ -36,15 +36,18 @@ class Screen:
             for column in range(0, COLUMNS):
                 # Only draw to the screen if the block is marked
                 # as to-draw
-                if click_grid[row][column] == 1:
-                    pygame.draw.rect(self.screen, color_grid[row][column],
-                                    (column * GRID_WIDTH + (column + 1) * MARGIN,
-                                     row * GRID_HEIGHT + (row + 1) * MARGIN,
-                                     GRID_WIDTH,
-                                     GRID_HEIGHT))
-                    if mine_neighbor_grid[row][column] != 0:
+                if click_grid.get_value(row, column):
+                    pygame.draw.rect(self.screen, 
+                        color_grid.get_value(row, column),
+                        (column * GRID_WIDTH + (column + 1) * MARGIN,
+                         row * GRID_HEIGHT + (row + 1) * MARGIN,
+                         GRID_WIDTH,
+                         GRID_HEIGHT))
+                            
+                    # Draw the mine-neighbor number if it is greater than 0
+                    if mine_neighbor_grid.get_value(row, column) > 0:
                         text = self.number_font.render(
-                                str(mine_neighbor_grid[row][column]), 
+                                str(mine_neighbor_grid.get_value(row, column)), 
                                 True, WHITE)
                             
                         self.screen.blit(text, 
@@ -52,15 +55,15 @@ class Screen:
                             row * GRID_HEIGHT + (row + 1) * MARGIN + 2])
                                      
     def draw_flags(self, row, column, click_grid, flag_grid):
-        if click_grid[row][column] == 1:
+        if click_grid.get_value(row, column):
             pass
-        elif flag_grid[row][column] == 1:
+        elif flag_grid.get_value(row, column) :
             self.screen.blit(self.flag_image,
                             (column * GRID_WIDTH + (column + 1) * MARGIN,
                              row * GRID_HEIGHT + (row + 1) * MARGIN,
                              GRID_WIDTH,
                              GRID_HEIGHT))
-        elif flag_grid[row][column] == 0:
+        elif not flag_grid.get_value(row, column):
             pygame.draw.rect(self.screen, WHITE,
                 (column * GRID_WIDTH + (column + 1) * MARGIN,
                  row * GRID_HEIGHT + (row + 1) * MARGIN,
