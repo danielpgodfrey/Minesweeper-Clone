@@ -122,25 +122,10 @@ class ColorGrid(Grid):
         for row in range(ROWS):
             for column in range(COLUMNS):
                 if mine_grid[row][column] == 1:
-                    self.grid[row][column] = RED
-                elif mine_neighbor_grid[row][column] == 0:
-                    self.grid[row][column] = BLUE
-                elif mine_neighbor_grid[row][column] == 1:
-                    self.grid[row][column] = CYAN
-                elif mine_neighbor_grid[row][column] == 2:
-                    self.grid[row][column] = DARKGREEN
-                elif mine_neighbor_grid[row][column] == 3:
-                    self.grid[row][column] = GREEN
-                elif mine_neighbor_grid[row][column] == 4:
-                    self.grid[row][column] = LITEGREEN
-                elif mine_neighbor_grid[row][column] == 5:
-                    self.grid[row][column] = PURPLE
-                elif mine_neighbor_grid[row][column] == 6:
-                    self.grid[row][column] = PINK
-                elif mine_neighbor_grid[row][column] == 7:
-                    self.grid[row][column] = YELLOW
-                elif mine_neighbor_grid[row][column] == 8:
-                    self.grid[row][column] = ORANGE
+                    self.grid[row][column] = COLOR_DICT['MINE']
+                else:
+                    self.grid[row][column] = COLOR_DICT[
+                        mine_neighbor_grid[row][column]]
 
 class FlagGrid(Grid):
     def __init__(self):

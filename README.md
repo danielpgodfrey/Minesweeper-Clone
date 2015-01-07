@@ -22,7 +22,8 @@ NOTE: This game was created for Python3. It requires the pygame library for Pyth
   <li><s>Find a faster way to generate mine-less neighbors (recursion?)</s></li>
   <li><s>Initialize mines after the player has clicked once, and not where the player has already clicked</s></li>
   <li><s>Find a better way to initialize mines</s></li>
-  <li>Update appropriate grids to use boolean values rather than 0s and 1s</li>
+  <li><s>Update appropriate grids to use boolean values rather than 0s and 1s</s></li>
+  <li>Move game over check to its own function</li>
 </ul>
 
 <h4>Low priority</h4>
@@ -32,8 +33,8 @@ NOTE: This game was created for Python3. It requires the pygame library for Pyth
   <li>Keep a record of best times</li>
   <li><s>Add numbers to blocks to signify the number of mine-neighbors (currently using colors)</s></li>
   <li>Refactor code</li>
-  <li>Move grids to their own class</li>
+  <li><s>Move grids to their own class</s></li>
   <li>Add option to have custom number of rows and columns</li>
   <li>Add option to have custom number of mines in play</li>
-  <li>Improve game over screen</li>
+  <li>Reveal mines and bad flags on game over</li>
 </ul>

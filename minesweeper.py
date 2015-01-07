@@ -49,20 +49,19 @@ class Game:
 
         return row_clicked, column_clicked
 
-    def victory_check(self, click_grid):
+    def check_victory(self, click_grid):
         """
         Draws the victory screen when as many blocks are clicked as there are
         non-mines. Assumes that the game over state immediately occurs
         when the user clicks a mine.
         """
         if click_grid.count_trues() == NON_MINES:
-            self.game_screen.victory_screen()
             return True
 
         else:
             return False
 
-    def game_over_check(self, row_clicked, column_clicked, mine_grid):
+    def check_game_over(self, row_clicked, column_clicked, mine_grid):
         """
         Checks if the user has lost, and draws to the screen
         appropriately.
@@ -72,15 +71,14 @@ class Game:
         else:
             return False
 
-    def click_block_event(self, row_clicked,
+    def reveal_block(self, row_clicked,
         column_clicked, click_grid, flag_grid, mine_grid, mine_neighbor_grid):
         """
         Handles what occurs when a row and column are clicked.
-        Updates the click_grid and determines if the user has won or lost
-        the game.
+        Updates the click_grid.
         """
         if flag_grid.get_value(row_clicked, column_clicked):
-            return False, False
+            return
 
         click_grid.set_value(row_clicked, column_clicked, True)
 
@@ -90,15 +88,6 @@ class Game:
             self._reveal_neighbors(
                 row_clicked, column_clicked,
                 click_grid, mine_neighbor_grid, flag_grid)
-
-        game_over = self.game_over_check(row_clicked, column_clicked, mine_grid)
-
-        win_state = False
-
-        if not game_over:
-            win_state = self.victory_check(click_grid)
-
-        return game_over, win_state
 
     def _reveal_neighbors(self, row, column, click_grid, mine_neighbor_grid, flag_grid):
         """
@@ -167,20 +156,21 @@ class Game:
             else:
                 return False
 
-    def restart(self, click_grid):
+    def restart(self, click_grid, flag_grid):
         """
         Handles what should occur on game restart. The screen should return
         to the initial state, and the click_grid should be reinitialized.
         """
         self.game_screen.initial_draw()
         click_grid.reinitialize()
+        flag_grid.reinitialize()
 
-    def double_click_check(self, last_click_time):
+    def is_double_click(self, last_click_time):
         """
         Returns if the current time and the last time the user clicked
         exceeds the constant CLICK_WAIT time.
         """
-        return pygame.time.get_ticks() - last_click_time > CLICK_WAIT
+        return pygame.time.get_ticks() - last_click_time < CLICK_WAIT
 
     def play(self):
         """
@@ -190,9 +180,6 @@ class Game:
         done = False
         game_over = False
         win_state = False
-
-        # Variable to be used to check whether the game needs to be
-        # re-drawn.
         click_count = 0
 
         last_click_time = pygame.time.get_ticks()
@@ -220,25 +207,29 @@ class Game:
                     # Generate everything on first click
 
                     # Wait added to prevent accidental double clicks
-                    if self.double_click_check(last_click_time):
+                    if not self.is_double_click(last_click_time):
                         if not game_over and not win_state:
                             if click_count == 0:
                                 mine_grid.generate_grid(row_clicked, column_clicked)
                                 mine_neighbor_grid.generate_grid(mine_grid.grid)
                                 color_grid.generate_grid(mine_grid.grid, mine_neighbor_grid.grid)
-                                click_count += 1
-
+                                                        
                             last_click_time = pygame.time.get_ticks()
-                            game_over, win_state = self.click_block_event(
+                            self.reveal_block(
                                 row_clicked, column_clicked,
                                 click_grid, flag_grid,
                                 mine_grid, mine_neighbor_grid)
 
                             self.game_screen.update_grid(
                                 click_grid, color_grid, mine_neighbor_grid)
+                                
+                            game_over = self.check_game_over(row_clicked, column_clicked, mine_grid)
+                            win_state = self.check_victory(click_grid)
+
+                            click_count += 1
 
                         else:
-                            self.restart(click_grid)
+                            self.restart(click_grid, flag_grid)
                             win_state, game_over = False, False
                             click_count = 0
 
@@ -248,7 +239,7 @@ class Game:
                     if win_state or game_over:
                         done = True
 
-                    if self.double_click_check(last_click_time):
+                    if not self.is_double_click(last_click_time):
                         last_click_time = pygame.time.get_ticks()
 
                         # Alternate between flagged and unflagged state.
@@ -260,8 +251,6 @@ class Game:
                 self.game_screen.game_over_screen()
             elif win_state:
                 self.game_screen.victory_screen()
-            if game_over or win_state:
-                flag_grid.reinitialize()
 
             # Update screen.
             pygame.display.flip()
