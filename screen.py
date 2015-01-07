@@ -57,7 +57,7 @@ class Screen:
     def draw_flags(self, row, column, click_grid, flag_grid):
         if click_grid.get_value(row, column):
             pass
-        elif flag_grid.get_value(row, column) :
+        elif flag_grid.get_value(row, column):
             self.screen.blit(self.flag_image,
                             (column * GRID_WIDTH + (column + 1) * MARGIN,
                              row * GRID_HEIGHT + (row + 1) * MARGIN,

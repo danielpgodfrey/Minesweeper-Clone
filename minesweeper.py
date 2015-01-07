@@ -6,7 +6,6 @@ import grid
 from screen import Screen
 
 class Game:
-
     """
     This class holds all the game elements. It renders the game,
     controls user input, and handles game logic.
@@ -69,7 +68,6 @@ class Game:
         appropriately.
         """
         if mine_grid.get_value(row_clicked, column_clicked):
-            self.game_screen.game_over_screen()
             return True
         else:
             return False
@@ -81,6 +79,9 @@ class Game:
         Updates the click_grid and determines if the user has won or lost
         the game.
         """
+        if flag_grid.get_value(row_clicked, column_clicked):
+            return False, False
+
         click_grid.set_value(row_clicked, column_clicked, True)
 
         # If the block is mine-neighborless, reveal the neighbors of the
@@ -89,11 +90,6 @@ class Game:
             self._reveal_neighbors(
                 row_clicked, column_clicked,
                 click_grid, mine_neighbor_grid, flag_grid)
-
-        # If the user has a flag on that space, don't do anything when they
-        # left click it.
-        if flag_grid.get_value(row_clicked, column_clicked):
-            click_grid.set_value(row_clicked, column_clicked, False)
 
         game_over = self.game_over_check(row_clicked, column_clicked, mine_grid)
 
@@ -123,86 +119,53 @@ class Game:
         # if the neighbors are already clicked.
         # If statements are necessary to prevent an out of range error.
         if not on_left_border:
-            neighborless = mine_neighbor_grid.get_value(row, column - 1) == 0
-            clicked = click_grid.get_value(row, column - 1)
-            click_grid.set_value(row, column - 1, True)
-
-            if neighborless and not clicked:
-                self._reveal_neighbors(
-                    row, column - 1,
-                    click_grid, mine_neighbor_grid, flag_grid)
+            self._reveal_call(row, column - 1, click_grid, mine_neighbor_grid, flag_grid)
 
         if not on_right_border:
-            neighborless = mine_neighbor_grid.get_value(row, column + 1) == 0
-            clicked = click_grid.get_value(row, column + 1)
-            click_grid.set_value(row, column + 1, True)
-
-            if neighborless and not clicked:
-                self._reveal_neighbors(
-                    row, column + 1,
-                    click_grid, mine_neighbor_grid, flag_grid)
+            self._reveal_call(row, column + 1, click_grid, mine_neighbor_grid, flag_grid)
 
         if not on_top_border:
-            neighborless = mine_neighbor_grid.get_value(row - 1, column) == 0
-            clicked = click_grid.get_value(row - 1, column)
-            click_grid.set_value(row - 1, column, True)
-
-            if neighborless and not clicked:
-                self._reveal_neighbors(
-                    row - 1, column,
-                    click_grid, mine_neighbor_grid, flag_grid)
+            self._reveal_call(row - 1, column, click_grid, mine_neighbor_grid, flag_grid)
 
         if not on_bottom_border:
-            neighborless = mine_neighbor_grid.get_value(row + 1, column) == 0
-            clicked = click_grid.get_value(row + 1, column)
-            click_grid.set_value(row + 1, column, True)
+            self._reveal_call(row + 1, column, click_grid, mine_neighbor_grid, flag_grid)
 
-            if neighborless and not clicked:
-                self._reveal_neighbors(
-                    row + 1, column,
-                    click_grid, mine_neighbor_grid, flag_grid)
-
-        # Reveal diagonals. Important that this comes last as to not
-        # interfere with the recursion.
+        # Reveal diagonals
         if not on_left_border and not on_top_border:
-            neighborless = mine_neighbor_grid.get_value(row - 1, column - 1) == 0
-            clicked = click_grid.get_value(row - 1, column - 1)
-            click_grid.set_value(row - 1, column - 1, True)
-
-            if neighborless and not clicked:
-                self._reveal_neighbors(row - 1, column - 1,
-                    click_grid, mine_neighbor_grid, flag_grid)
+            self._reveal_call(row - 1, column - 1, click_grid, mine_neighbor_grid, flag_grid)
 
         if not on_left_border and not on_bottom_border:
-            neighborless = mine_neighbor_grid.get_value(row + 1, column - 1) == 0
-            clicked = click_grid.get_value(row + 1, column - 1)
-            click_grid.set_value(row + 1, column - 1, True)
-
-            if neighborless and not clicked:
-                self._reveal_neighbors(row + 1, column - 1,
-                    click_grid, mine_neighbor_grid, flag_grid)
+            self._reveal_call(row + 1, column - 1, click_grid, mine_neighbor_grid, flag_grid)
 
         if not on_right_border and not on_top_border:
-            neighborless = mine_neighbor_grid.get_value(row - 1, column + 1) == 0
-            clicked = click_grid.get_value(row - 1, column + 1)
-            click_grid.set_value(row - 1, column + 1, True)
-
-            if neighborless and not clicked:
-                self._reveal_neighbors(row - 1, column + 1,
-                    click_grid, mine_neighbor_grid, flag_grid)
+            self._reveal_call(row - 1, column + 1, click_grid, mine_neighbor_grid, flag_grid)
 
         if not on_right_border and not on_bottom_border:
-            neighborless = mine_neighbor_grid.get_value(row + 1, column + 1) == 0
-            clicked = click_grid.get_value(row + 1, column + 1)
-            click_grid.set_value(row + 1, column + 1, True)
-
-            if neighborless and not clicked:
-                self._reveal_neighbors(row + 1, column + 1,
-                    click_grid, mine_neighbor_grid, flag_grid)
-
+            self._reveal_call(row + 1, column + 1, click_grid, mine_neighbor_grid, flag_grid)
 
         if flag_grid.get_value(row, column):
             click_grid.set_value(row, column, False)
+
+    def _reveal_call(self, row, column, click_grid, mine_neighbor_grid, flag_grid):
+        to_reveal = self._check_to_reveal(row, column,
+            click_grid, mine_neighbor_grid, flag_grid)
+
+        if to_reveal:
+            click_grid.set_value(row, column, True)
+            neighborless = mine_neighbor_grid.get_value(row, column) == 0
+            if neighborless:
+                self._reveal_neighbors(
+                    row, column,
+                    click_grid, mine_neighbor_grid, flag_grid)
+
+    def _check_to_reveal(self, row, column, click_grid, mine_neighbor_grid, flag_grid):
+            clicked = click_grid.get_value(row, column)
+            flagged = flag_grid.get_value(row, column)
+
+            if not clicked and not flagged:
+                return True
+            else:
+                return False
 
     def restart(self, click_grid):
         """
@@ -254,45 +217,51 @@ class Game:
 
                 # Left click event
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    if win_state or game_over:
-                        self.restart(click_grid)
-                        click_count = 0
-                        win_state, game_over = False, False
-
                     # Generate everything on first click
-                    if click_count == 0:
-                        mine_grid.generate_grid(row_clicked, column_clicked)
-                        mine_neighbor_grid.generate_grid(mine_grid.grid)
-                        color_grid.generate_grid(mine_grid.grid, mine_neighbor_grid.grid)
-                        last_click_time = pygame.time.get_ticks()
-                        click_count += 1
 
                     # Wait added to prevent accidental double clicks
                     if self.double_click_check(last_click_time):
-                        last_click_time = pygame.time.get_ticks()
+                        if not game_over and not win_state:
+                            if click_count == 0:
+                                mine_grid.generate_grid(row_clicked, column_clicked)
+                                mine_neighbor_grid.generate_grid(mine_grid.grid)
+                                color_grid.generate_grid(mine_grid.grid, mine_neighbor_grid.grid)
+                                click_count += 1
 
-                        game_over, win_state = self.click_block_event(
-                            row_clicked, column_clicked,
-                            click_grid, flag_grid,
-                            mine_grid, mine_neighbor_grid)
+                            last_click_time = pygame.time.get_ticks()
+                            game_over, win_state = self.click_block_event(
+                                row_clicked, column_clicked,
+                                click_grid, flag_grid,
+                                mine_grid, mine_neighbor_grid)
 
-                        self.game_screen.update_grid(
-                            click_grid, color_grid, mine_neighbor_grid)
+                            self.game_screen.update_grid(
+                                click_grid, color_grid, mine_neighbor_grid)
 
-                    click_count += 1
+                        else:
+                            self.restart(click_grid)
+                            win_state, game_over = False, False
+                            click_count = 0
+
 
                 # Right click event
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+                    if win_state or game_over:
+                        done = True
+
                     if self.double_click_check(last_click_time):
                         last_click_time = pygame.time.get_ticks()
 
                         # Alternate between flagged and unflagged state.
-                        flag_grid.set_flag(row_clicked, column_clicked)
+                        flag_grid.set_flag(row_clicked, column_clicked, click_grid)
                         self.game_screen.draw_flags(
                             row_clicked, column_clicked, click_grid, flag_grid)
 
-            # Victory condition
-            win_state = self.victory_check(click_grid)
+            if game_over:
+                self.game_screen.game_over_screen()
+            elif win_state:
+                self.game_screen.victory_screen()
+            if game_over or win_state:
+                flag_grid.reinitialize()
 
             # Update screen.
             pygame.display.flip()

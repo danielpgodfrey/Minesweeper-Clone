@@ -36,6 +36,8 @@ class MineGrid(Grid):
         # Generate mines randomly. COLUMNS * ROWS gives us the total amount
         # of blocks on the playing ground. We then create a mine in the randomly
         # selected spaces. We create one more than we need in case 
+        self.grid = [[False for x in range(ROWS)] for y in range(COLUMNS)]
+
         mines = random.sample(range(COLUMNS*ROWS), MINES + 1)
         
         # Loop over all but the last one (since we generate one more than we need 
@@ -144,6 +146,10 @@ class FlagGrid(Grid):
     def __init__(self):
         self.grid = [[False for x in range(COLUMNS)] for y in range(COLUMNS)]
         
-    def set_flag(self, row, column):
+    def set_flag(self, row, column, click_grid):
         # Turn on/off flag.
-        self.grid[row][column] = not self.grid[row][column]
+        if not click_grid.get_value(row, column):
+            self.grid[row][column] = not self.grid[row][column]
+            
+    def get_value(self, row, column):
+        return self.grid[row][column]
