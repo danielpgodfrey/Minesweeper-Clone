@@ -1,5 +1,7 @@
 # File locations of images.
 FLAG_LOCATION = 'flag.png'
+MINE_LOCATION = 'mine.png'
+RED_X_LOCATION = 'red_x.png'
 
 # Size of the blocks, and the margin between them.
 GRID_WIDTH = 20
@@ -11,7 +13,8 @@ ROWS = 16
 COLUMNS = 16
 
 # Screen resolution
-SCREEN_HEIGHT = ROWS * (GRID_HEIGHT + MARGIN) + MARGIN
+INFO_HEIGHT = 75 # Height for display counters, time, etc.
+SCREEN_HEIGHT = ROWS * (GRID_HEIGHT + MARGIN) + MARGIN + INFO_HEIGHT
 SCREEN_WIDTH = COLUMNS * (GRID_WIDTH + MARGIN) + MARGIN
 
 # Number of mines to place on the grid

@@ -12,13 +12,7 @@ class Grid:
     def get_value(self, row, column):
         return self.grid[row][column]
         
-    def draw_grid(self, screen):
-        pass
-        
-    def click_block(self, row, column):
-        pass
-        
-    def reinitialize(self):
+    def initialize(self):
         self.grid = [[False for x in range(COLUMNS)] for y in range(ROWS)]
         
     def count_trues(self):
@@ -129,12 +123,21 @@ class ColorGrid(Grid):
 
 class FlagGrid(Grid):
     def __init__(self):
+        self.initialize()
+        
+    def initialize(self):
         self.grid = [[False for x in range(COLUMNS)] for y in range(COLUMNS)]
+        self.flag_count = 0
         
     def set_flag(self, row, column, click_grid):
         # Turn on/off flag.
         if not click_grid.get_value(row, column):
             self.grid[row][column] = not self.grid[row][column]
+            
+            if self.grid[row][column]:
+                self.flag_count += 1
+            else:
+                self.flag_count -= 1
             
     def get_value(self, row, column):
         return self.grid[row][column]
