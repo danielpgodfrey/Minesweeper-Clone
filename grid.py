@@ -30,7 +30,7 @@ class MineGrid(Grid):
         # Generate mines randomly. COLUMNS * ROWS gives us the total amount
         # of blocks on the playing ground. We then create a mine in the randomly
         # selected spaces. We create one more than we need in case 
-        self.grid = [[False for x in range(ROWS)] for y in range(COLUMNS)]
+        self.grid = [[False for x in range(COLUMNS)] for y in range(ROWS)]
 
         mines = random.sample(range(COLUMNS*ROWS), MINES + 1)
         

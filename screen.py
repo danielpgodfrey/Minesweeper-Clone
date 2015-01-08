@@ -13,8 +13,11 @@ class Screen:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Minesweeper Alpha")
         
-        self.word_font = pygame.font.SysFont('Arial', 16, True, False)
-        self.number_font = pygame.font.SysFont('Courier', 14, True, False)
+        self.word_font = pygame.font.SysFont('Arial', 
+            WORD_FONT_SIZE, True, False)
+        
+        self.number_font = pygame.font.SysFont('Courier', 
+            NUMBER_FONT_SIZE, True, False)
         
         self.flag_image = pygame.image.load(FLAG_LOCATION)
         self.mine_image = pygame.image.load(MINE_LOCATION)
@@ -74,9 +77,9 @@ class Screen:
                 if mine_grid.get_value(row, column):
                     self._draw_image(self.flag_image, row, column)
 
-        self._display_text("You win!", 20)
-        self._display_text("Left click to restart.", 40)
-        self._display_text("Right click to quit.", 60)        
+        self._display_text("You win!", 10)
+        self._display_text("Left click to restart.", 30)
+        self._display_text("Right click to quit.", 50)        
         
     def game_over_screen(self, mine_grid, click_grid, flag_grid):
         """

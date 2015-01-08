@@ -3,24 +3,34 @@ FLAG_LOCATION = 'flag.png'
 MINE_LOCATION = 'mine.png'
 RED_X_LOCATION = 'red_x.png'
 
+DIFFICULTY = 'beginner'
+
 # Size of the blocks, and the margin between them.
 GRID_WIDTH = 20
 GRID_HEIGHT = 20
 MARGIN = 5
 
 # How many rows and columns of blocks to create.
-ROWS = 16
-COLUMNS = 16
+if DIFFICULTY == 'expert':
+    ROWS = 16
+    COLUMNS = 30
+    MINES = 99
+elif DIFFICULTY == 'intermediate':
+    ROWS = 16
+    COLUMNS = 16
+    MINES = 40
+elif DIFFICULTY == 'beginner':
+    ROWS = 9
+    COLUMNS = 9
+    MINES = 10
 
 # Screen resolution
 INFO_HEIGHT = 75 # Height for display counters, time, etc.
 SCREEN_HEIGHT = ROWS * (GRID_HEIGHT + MARGIN) + MARGIN + INFO_HEIGHT
 SCREEN_WIDTH = COLUMNS * (GRID_WIDTH + MARGIN) + MARGIN
 
-# Number of mines to place on the grid
-# This should check if this is a certain percentage
-# of total blocks.
-MINES = 40
+WORD_FONT_SIZE = int(ROWS * 1.2 - COLUMNS * .2)
+NUMBER_FONT_SIZE = int(0.7 * GRID_WIDTH)
 
 NON_MINES = ROWS * COLUMNS - MINES
 

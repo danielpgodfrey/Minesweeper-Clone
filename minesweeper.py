@@ -61,12 +61,12 @@ class Game:
         else:
             return False
 
-    def check_game_over(self, row_clicked, column_clicked, mine_grid):
+    def check_game_over(self, row, column, mine_grid, flag_grid):
         """
         Checks if the user has lost, and draws to the screen
         appropriately.
         """
-        if mine_grid.get_value(row_clicked, column_clicked):
+        if mine_grid.get_value(row, column) and not flag_grid.get_value(row, column):
             return True
         else:
             return False
@@ -212,9 +212,13 @@ class Game:
                     if not self.is_double_click(last_click_time):
                         if not game_over and not win_state:
                             if click_count == 0:
-                                mine_grid.generate_grid(row_clicked, column_clicked)
+                                mine_grid.generate_grid(
+                                    row_clicked, column_clicked)
+                                
                                 mine_neighbor_grid.generate_grid(mine_grid.grid)
-                                color_grid.generate_grid(mine_grid.grid, mine_neighbor_grid.grid)
+                                color_grid.generate_grid(
+                                    mine_grid.grid, mine_neighbor_grid.grid)
+                                
                                 start_time = pygame.time.get_ticks()
                                                         
                             last_click_time = pygame.time.get_ticks()
@@ -227,7 +231,10 @@ class Game:
                             self.game_screen.update_grid(
                                 click_grid, color_grid, mine_neighbor_grid)
                                 
-                            game_over = self.check_game_over(row_clicked, column_clicked, mine_grid)
+                            game_over = self.check_game_over(
+                                row_clicked, column_clicked,
+                                mine_grid, flag_grid)
+                                
                             win_state = self.check_victory(click_grid)
 
                             click_count += 1
@@ -256,7 +263,7 @@ class Game:
             elif win_state:
                 self.game_screen.victory_screen(mine_grid)
 
-            if click_count > 0 and not game_over:
+            if click_count > 0 and not game_over and not win_state:
                 current_time = pygame.time.get_ticks() - start_time
                 self.game_screen._display_time_counter(current_time // 1000)
                 
