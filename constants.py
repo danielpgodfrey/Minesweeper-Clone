@@ -5,34 +5,30 @@ RED_X_LOCATION = 'red_x.png'
 
 DIFFICULTY = 'beginner'
 
-# Size of the blocks, and the margin between them.
-GRID_WIDTH = 20
-GRID_HEIGHT = 20
-MARGIN = 5
 
-# How many rows and columns of blocks to create.
-if DIFFICULTY == 'expert':
-    ROWS = 16
-    COLUMNS = 30
-    MINES = 99
-elif DIFFICULTY == 'intermediate':
-    ROWS = 16
-    COLUMNS = 16
-    MINES = 40
-elif DIFFICULTY == 'beginner':
-    ROWS = 9
-    COLUMNS = 9
-    MINES = 10
+# How many rows and COLS of blocks to create.
+#if DIFFICULTY == 'expert':
+    #ROWS = 16
+    #COLS = 30
+    #MINES = 99
+#elif DIFFICULTY == 'intermediate':
+    #ROWS = 16
+    #COLS = 16
+    #MINES = 40
+#elif DIFFICULTY == 'beginner':
+    #ROWS = 9
+    #COLS = 9
+    #MINES = 10
 
 # Screen resolution
 INFO_HEIGHT = 75 # Height for display counters, time, etc.
-SCREEN_HEIGHT = ROWS * (GRID_HEIGHT + MARGIN) + MARGIN + INFO_HEIGHT
-SCREEN_WIDTH = COLUMNS * (GRID_WIDTH + MARGIN) + MARGIN
+SCREEN_HEIGHT = ROWS * (BLOCK_HEIGHT + MARGIN) + MARGIN + INFO_HEIGHT
+SCREEN_WIDTH = COLS * (BLOCK_WIDTH + MARGIN) + MARGIN
 
-WORD_FONT_SIZE = int(ROWS * 1.2 - COLUMNS * .2)
+WORD_FONT_SIZE = int(ROWS * 1.2 - COLS * .2)
 NUMBER_FONT_SIZE = int(0.7 * GRID_WIDTH)
 
-NON_MINES = ROWS * COLUMNS - MINES
+NON_MINES = ROWS * COLS - MINES
 
 assert(NON_MINES > 0)
 
@@ -55,16 +51,7 @@ DARKGRAY = ( 75, 75, 75)
 BROWN    = ( 165,  42,  42)
 LITEBLUE = ( 118, 215, 234)
 
-COLOR_DICT = {'MINE': RED,
-                   0: DARKGRAY, 
-                   1: LITEBLUE, 
-                   2: GREEN,
-                   3: RED,
-                   4: DARKBLUE,
-                   5: BROWN,
-                   6: CYAN,
-                   7: GRAY,
-                   8: ORANGE }
+
 # Misc
 # Milliseconds to wait between clicks
 CLICK_WAIT = 100 
