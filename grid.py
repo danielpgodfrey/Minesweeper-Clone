@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+date: Mon Jan 19 14:10:32 2015
+@author: daniel
+"""
+
 import random
 from block import Block
 
@@ -7,26 +17,37 @@ class Grid:
     responsible for generating elements associated with the grid like
     mines and Blocks, as well as some properties associated with the Block.
 
+    Arguments:
+    click_position = pixel position of first click
+
     Parameters:
     blocks = 2D list of Block objects.
     row_count = number of rows in the grid
     col_count = number of columns in the grid
-    mine_count = number of mines in the grid
+    mine_count = number of blocks in the grid that are mines
+    non_mine_count = number of blocks in the grid that aren't mines
     """
-    def __init__(self, click_position):
+    def __init__(self):
         # Default to beginner game
         self.row_count = 9
-        self.col_count = 9
+        self.col_count = 10
         self.mine_count = 10
-
-        self.initialize_grid(click_position)
+        self.clicked_blocks = 0
+        self.non_mine_count = self.row_count*self.col_count - self.mine_count
+        self.blocks = [[Block(row, col)
+                       for col in range(self.col_count)]
+                       for row in range(self.row_count)]
 
     def __str__(self):
         block_list = list()
+        if not self.blocks:
+            return "Uninitialized."
 
         for row in self.blocks:
             for block in row:
-                if block.is_mine:
+                if block.flagged:
+                    block_list.append('F')
+                elif block.is_mine:
                     block_list.append('M')
                 elif block.is_revealed and block.mine_neighbor_count == 0:
                     block_list.append('~')
@@ -48,30 +69,30 @@ class Grid:
         mines = self._generate_mines(row, col)
         mine_grid = self._calc_mine_grid(mines)
         mine_neighbor_grid = self._calc_mine_neighbors(mines)
+        print(mine_grid)
 
-        self.blocks = [[Block(mine_grid[x][y], mine_neighbor_grid[x][y])
-                       for x in range(self.row_count)]
-                       for y in range(self.col_count)]
+        [[self.blocks[x][y].update_with_mines(
+          mine_grid[x][y], mine_neighbor_grid[x][y])
+          for y in range(self.col_count)]
+         for x in range(self.row_count)]
 
         self._reveal_around(row, col)
 
     def click_grid(self, click_position, click_type):
         """Updates the grid based on the a mouse click.
-        Takes in
+        Takes in click position and string indicating "left" or "right" click
         """
         row, col = self._find_clicked_row_col(click_position)
-        if click_type == "left":
+        if click_type == "left" and not self.blocks[row][col].flagged:
             self.blocks[row][col].reveal()
-            self.blocks[row][col].draw()
-            if self.blocks[row][col].mine_neighbors == 0:
-                self.reveal_around(row, col)
+            if self.blocks[row][col].mine_neighbor_count == 0:
+                self._reveal_around(row, col)
 
         elif click_type == "right":
             self.blocks[row][col].cycle_flag()
-            self.blocks[row][col].draw()
 
     def update_params(self, row_count, col_count, mine_count):
-        """Change the parameters of the grid.
+        """Change the parameters of the grid.not
         """
         self.row_count = row_count
         self.col_count = col_count
@@ -88,9 +109,12 @@ class Grid:
 
             neighborless = self.blocks[row][col].mine_neighbor_count == 0
             revealed = self.blocks[row][col].is_revealed
-            self.blocks[row][col].reveal()
+            flagged = self.blocks[row][col].flagged
 
-            if neighborless and not revealed:
+            if not flagged:
+                self.blocks[row][col].reveal()
+
+            if neighborless and not revealed and not flagged:
                 self._reveal_around(row, col)
 
     def _generate_mines(self, row_clicked, col_clicked):
@@ -105,8 +129,9 @@ class Grid:
                               self.mine_count + 8)
 
         # Compose the integers into grid rows and columns
-        mine_rows = [x // self.col_count for x in mines]
-        mine_cols = [x % self.col_count for x in mines]
+
+        mine_rows = [x % self.row_count for x in mines]
+        mine_cols = [x // self.row_count for x in mines]
         mine_grid = set(zip(mine_rows, mine_cols))
 
         # Mines should not be generated in any block around the
@@ -122,8 +147,8 @@ class Grid:
         return mine_grid[:self.mine_count]
 
     def _calc_mine_grid(self, mines):
-        mine_grid = [[False for x in range(self.row_count)]
-                     for y in range(self.col_count)]
+        mine_grid = [[False for x in range(self.col_count)]
+                     for y in range(self.row_count)]
 
         for mine in mines:
             mine_grid[mine[0]][mine[1]] = True
@@ -131,13 +156,12 @@ class Grid:
         return mine_grid
 
     def _calc_mine_neighbors(self, mines):
-        """
-        Take a list of 2-tuples corresponding to coordinates of
+        """Take a list of 2-tuples corresponding to coordinates of
         mine locations and return a 2D list of integers corresponding
         to the mine neighbor count of all of the blocks.
         """
-        mine_neighbor_grid = [[0 for x in range(self.row_count)]
-                              for y in range(self.col_count)]
+        mine_neighbor_grid = [[0 for x in range(self.col_count)]
+                              for y in range(self.row_count)]
 
         for mine in mines:
             mine_row = mine[0]
@@ -152,8 +176,7 @@ class Grid:
         return mine_neighbor_grid
 
     def _find_neighbors(self, row, col):
-        """
-        Return a set of 2-tuples containing the neighbors of the
+        """Return a set of 2-tuples containing the neighbors of the
         input row and column. (Return set that is just +/- 1 of row and col
         and make sure that it isn't negative or past the number of rows.)
         """
@@ -171,24 +194,22 @@ class Grid:
         Convert the tuple of a mouse click position (given in pixels, x
         and y position) to a tuple of block position on the grid.
         """
-        column_clicked = click_position[0] // \
-            (Block.BLOCK_WIDTH + Block.MARGIN)
+        col_clicked = click_position[0] // \
+            (Block.WIDTH + Block.MARGIN)
 
-        row_clicked = click_position[1] // (Block.BLOCK_HEIGHT + Block.MARGIN)
+        row_clicked = click_position[1] // (Block.HEIGHT + Block.MARGIN)
 
         # If the user clicks below the final row, count it as the final row.
         if row_clicked >= self.row_count:
             row_clicked = self.row_count - 1
-        if column_clicked >= self.col_count:
-            column_clicked = self.col_count - 1
+        if col_clicked >= self.col_count:
+            col_clicked = self.col_count - 1
 
-        return row_clicked, column_clicked
+        return row_clicked, col_clicked
 
 if __name__ == "__main__":
     # Demo
-    grid = Grid((120, 120))
-    print(grid)
+    grid = Grid()
 
     grid.update_params(20, 20, 40)
     grid.initialize_grid((120, 120))
-    print(grid)
