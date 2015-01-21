@@ -32,11 +32,15 @@ class Grid:
         self.row_count = 9
         self.col_count = 10
         self.mine_count = 10
-        self.clicked_blocks = 0
         self.non_mine_count = self.row_count*self.col_count - self.mine_count
+        self.revealed_blocks = 0
+
+        self.mine_clicked = False
+
         self.blocks = [[Block(row, col)
                        for col in range(self.col_count)]
                        for row in range(self.row_count)]
+        self.last_clicked_block = None
 
     def __str__(self):
         block_list = list()
@@ -69,7 +73,6 @@ class Grid:
         mines = self._generate_mines(row, col)
         mine_grid = self._calc_mine_grid(mines)
         mine_neighbor_grid = self._calc_mine_neighbors(mines)
-        print(mine_grid)
 
         [[self.blocks[x][y].update_with_mines(
           mine_grid[x][y], mine_neighbor_grid[x][y])
@@ -84,9 +87,16 @@ class Grid:
         """
         row, col = self._find_clicked_row_col(click_position)
         if click_type == "left" and not self.blocks[row][col].flagged:
-            self.blocks[row][col].reveal()
-            if self.blocks[row][col].mine_neighbor_count == 0:
-                self._reveal_around(row, col)
+            if not self.blocks[row][col].is_revealed:
+                self.blocks[row][col].reveal()
+                self.revealed_blocks += 1
+                self.last_clicked_block = self.blocks[row][col]
+
+                if self.blocks[row][col].mine_neighbor_count == 0:
+                    self._reveal_around(row, col)
+
+            if self.blocks[row][col].is_mine:
+                self.mine_clicked = True
 
         elif click_type == "right":
             self.blocks[row][col].cycle_flag()
@@ -98,6 +108,17 @@ class Grid:
         self.col_count = col_count
         self.mine_count = mine_count
         assert(mine_count < row_count * col_count - 8)
+
+    def reveal_mines_and_flags(self):
+        [[self.blocks[x][y].reveal()for y in range(self.col_count) if
+            self.blocks[x][y].is_mine or self.blocks[x][y].flagged]
+            for x in range(self.row_count)]
+
+    def flag_mines(self):
+        for row in self.blocks:
+            for block in row:
+                if block.is_mine and not block.flagged:
+                    block.cycle_flag()
 
     def _reveal_around(self, row_clicked, col_clicked):
         # Find all blocks around the clicked block
@@ -111,8 +132,9 @@ class Grid:
             revealed = self.blocks[row][col].is_revealed
             flagged = self.blocks[row][col].flagged
 
-            if not flagged:
+            if not flagged and not revealed:
                 self.blocks[row][col].reveal()
+                self.revealed_blocks += 1
 
             if neighborless and not revealed and not flagged:
                 self._reveal_around(row, col)

@@ -44,7 +44,8 @@ class Block:
         self.mine_neighbor_count = mine_neighbors
 
     def cycle_flag(self):
-        self.flagged = not self.flagged
+        if not self.is_revealed:
+            self.flagged = not self.flagged
 
     def reveal(self):
         self.is_revealed = True
