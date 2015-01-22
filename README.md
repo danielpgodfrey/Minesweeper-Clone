@@ -16,6 +16,8 @@ NOTE: This game was created for Python3. It requires the pygame library for Pyth
 <h3>TODO:</h3>
 
 <ul>
+  <li>Create options menu</li> 
+  <li>Create restart screen</li>
   <li>Finish game logic.</li>
   <li>Finish Grid class logic.</li>
   <li>Create Game class, Screen class, and Controls(?) class.</li>
